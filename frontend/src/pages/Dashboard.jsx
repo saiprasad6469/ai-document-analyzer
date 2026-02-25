@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { api, setAuthToken } from "../services/api";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
-
 // ---------- user ----------
 function readUser() {
   try {
@@ -39,12 +37,6 @@ function makeAvatarBg(seed) {
   };
 }
 
-function truncate(str, n) {
-  const s = str || "";
-  if (s.length <= n) return s;
-  return s.slice(0, n - 1) + "…";
-}
-
 function isMobileWidth() {
   return window.matchMedia("(max-width: 980px)").matches;
 }
@@ -66,11 +58,13 @@ export default function Dashboard() {
   const [asking, setAsking] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  // Attach token to axios instance
   useEffect(() => {
     if (token) setAuthToken(token);
     else setAuthToken(null);
   }, [token]);
 
+  // Sidebar responsive
   useEffect(() => {
     const onResize = () => {
       if (isMobileWidth()) setSidebarOpen(false);
@@ -80,6 +74,7 @@ export default function Dashboard() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Escape closes sidebar on mobile
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") setSidebarOpen(false);
@@ -88,6 +83,7 @@ export default function Dashboard() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Load current user
   useEffect(() => {
     if (!token) return;
     (async () => {
@@ -98,25 +94,35 @@ export default function Dashboard() {
           setUser(dbUser);
           localStorage.setItem("user", JSON.stringify(dbUser));
         }
-      } catch {}
+      } catch (e) {
+        // If token invalid, force logout
+        // (optional: keep silent)
+      }
     })();
   }, [token]);
 
+  // Load chats
   useEffect(() => {
     if (!token) return;
 
     const loadChats = async () => {
-      const res = await api.get("/chats");
-      const list = res.data?.chats || [];
+      try {
+        const res = await api.get("/chats");
+        const list = res.data?.chats || [];
 
-      if (!list.length) {
-        const created = await api.post("/chats");
-        const chat = created.data?.chat;
-        setChats([chat]);
-        setActiveChatId(chat?.id || null);
-      } else {
-        setChats(list);
-        setActiveChatId((prev) => prev || list[0]?.id || null);
+        if (!list.length) {
+          const created = await api.post("/chats");
+          const chat = created.data?.chat;
+          if (chat) {
+            setChats([chat]);
+            setActiveChatId(chat?.id || null);
+          }
+        } else {
+          setChats(list);
+          setActiveChatId((prev) => prev || list[0]?.id || null);
+        }
+      } catch (e) {
+        console.error("Load chats failed:", e?.message || e);
       }
     };
 
@@ -130,22 +136,37 @@ export default function Dashboard() {
 
   const activeSessionId = activeChat?.sessionId || null;
 
+  // Load messages for selected chat
   useEffect(() => {
     if (!token || !activeChatId) return;
     (async () => {
-      const res = await api.get(`/chats/${activeChatId}`);
-      setMessages(res.data?.chat?.messages || []);
+      try {
+        const res = await api.get(`/chats/${activeChatId}`);
+        setMessages(res.data?.chat?.messages || []);
+      } catch (e) {
+        console.error("Load chat messages failed:", e?.message || e);
+        setMessages([]);
+      }
     })();
   }, [token, activeChatId]);
 
-  useEffect(() => {
-    if (!token || !activeSessionId) return;
-    (async () => {
+  // Load docs for this chat/session
+  const refreshDocs = async (sessionId) => {
+    if (!token || !sessionId) return;
+    try {
       const res = await api.get("/docs/mine", {
-        headers: { "x-session-id": activeSessionId },
+        headers: { "x-session-id": sessionId },
       });
       setDocs(res.data?.docs || []);
-    })();
+    } catch (e) {
+      console.error("Load docs failed:", e?.message || e);
+      setDocs([]);
+    }
+  };
+
+  useEffect(() => {
+    if (!token || !activeSessionId) return;
+    refreshDocs(activeSessionId);
   }, [token, activeSessionId]);
 
   const docsCountText = useMemo(() => {
@@ -179,28 +200,35 @@ export default function Dashboard() {
   };
 
   const newChat = async () => {
-    const res = await api.post("/chats");
-    const chat = res.data?.chat;
-    if (!chat?.id) return;
+    try {
+      const res = await api.post("/chats");
+      const chat = res.data?.chat;
+      if (!chat?.id) return;
 
-    setChats((prev) => [chat, ...prev]);
-    setActiveChatId(chat.id);
-    setQuestion("");
-    setDocs([]);
-    setMessages(chat.messages || []);
+      setChats((prev) => [chat, ...prev]);
+      setActiveChatId(chat.id);
+      setQuestion("");
+      setDocs([]);
+      setMessages(chat.messages || []);
 
-    if (isMobileWidth()) setSidebarOpen(false);
+      if (isMobileWidth()) setSidebarOpen(false);
+    } catch (e) {
+      console.error("Create chat failed:", e?.message || e);
+    }
   };
 
   const deleteChat = async (id) => {
-    await api.delete(`/chats/${id}`);
-    setChats((prev) => {
-      const next = prev.filter((c) => c.id !== id);
-      const nextActive =
-        (activeChatId === id ? next[0]?.id : activeChatId) || null;
-      setActiveChatId(nextActive);
-      return next;
-    });
+    try {
+      await api.delete(`/chats/${id}`);
+      setChats((prev) => {
+        const next = prev.filter((c) => c.id !== id);
+        const nextActive = (activeChatId === id ? next[0]?.id : activeChatId) || null;
+        setActiveChatId(nextActive);
+        return next;
+      });
+    } catch (e) {
+      console.error("Delete chat failed:", e?.message || e);
+    }
   };
 
   const logout = () => {
@@ -211,6 +239,36 @@ export default function Dashboard() {
   };
 
   const onPickFiles = () => fileRef.current?.click();
+
+  // ✅ Upload handler (works with FormData)
+  const onFilesSelected = async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = ""; // allow selecting same file again
+    if (!files.length || !activeSessionId) return;
+
+    try {
+      setUploading(true);
+
+      const formData = new FormData();
+      for (const f of files) formData.append("files", f);
+
+      // Common upload route:
+      // POST /docs/upload with field name "files"
+      await api.post("/docs/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "x-session-id": activeSessionId,
+        },
+      });
+
+      await refreshDocs(activeSessionId);
+    } catch (err) {
+      console.error("Upload failed:", err?.response?.data || err?.message || err);
+      // Optional: show an error message in chat
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const askQuestion = async () => {
     const q = question.trim();
@@ -240,16 +298,17 @@ export default function Dashboard() {
       const chatRes = await api.get(`/chats/${activeChatId}`);
       setMessages(chatRes.data?.chat?.messages || []);
     } catch (err) {
-      const text =
-        err?.response?.data?.message || err.message || "Question failed";
+      const text = err?.response?.data?.message || err?.message || "Question failed";
 
-      await api.post(`/chats/${activeChatId}/messages`, {
-        role: "assistant",
-        content: `❌ ${text}`,
-      });
+      try {
+        await api.post(`/chats/${activeChatId}/messages`, {
+          role: "assistant",
+          content: `❌ ${text}`,
+        });
 
-      const chatRes = await api.get(`/chats/${activeChatId}`);
-      setMessages(chatRes.data?.chat?.messages || []);
+        const chatRes = await api.get(`/chats/${activeChatId}`);
+        setMessages(chatRes.data?.chat?.messages || []);
+      } catch {}
     } finally {
       setAsking(false);
     }
@@ -269,11 +328,17 @@ export default function Dashboard() {
 
   return (
     <div className="appShell">
+      {/* ✅ hidden file input */}
+      <input
+        ref={fileRef}
+        type="file"
+        multiple
+        style={{ display: "none" }}
+        onChange={onFilesSelected}
+      />
+
       {sidebarOpen && isMobileWidth() ? (
-        <div
-          className="sidebarBackdrop"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="sidebarBackdrop" onClick={() => setSidebarOpen(false)} />
       ) : null}
 
       <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
@@ -313,9 +378,7 @@ export default function Dashboard() {
             <div style={avatarStyle}>{initials}</div>
             <div>
               <div style={{ fontWeight: 600 }}>{displayName}</div>
-              {displaySub && (
-                <div style={{ fontSize: 12, opacity: 0.8 }}>{displaySub}</div>
-              )}
+              {displaySub && <div style={{ fontSize: 12, opacity: 0.8 }}>{displaySub}</div>}
             </div>
           </div>
 
@@ -350,20 +413,15 @@ export default function Dashboard() {
 
         <div className="chatBox">
           {messages.map((m, i) => (
-            <div
-              key={i}
-              className={`msg ${m.role === "user" ? "msgUser" : "msgAi"}`}
-            >
-              <div className="msgRole">
-                {m.role === "user" ? "You" : "AI"}
-              </div>
+            <div key={i} className={`msg ${m.role === "user" ? "msgUser" : "msgAi"}`}>
+              <div className="msgRole">{m.role === "user" ? "You" : "AI"}</div>
               <div className="msgText">{m.content}</div>
             </div>
           ))}
         </div>
 
         <div className="chatInputBar">
-          <button className="plusBtn" onClick={onPickFiles}>
+          <button className="plusBtn" onClick={onPickFiles} disabled={uploading}>
             +
           </button>
 
@@ -373,9 +431,10 @@ export default function Dashboard() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={onKeyDown}
+            disabled={asking}
           />
 
-          <button className="btnPrimary" onClick={askQuestion}>
+          <button className="btnPrimary" onClick={askQuestion} disabled={asking}>
             Send
           </button>
         </div>
