@@ -37,14 +37,12 @@ export default function Login() {
     try {
       setLoading(true);
 
-      // Backend expected route example:
-      // POST http://localhost:5000/auth/login
+      // ✅ baseURL comes from services/api.js
       const res = await api.post("/auth/login", {
         email: form.email.trim().toLowerCase(),
         password: form.password,
       });
 
-      // Typical backend returns token like: { token: "...", user: {...} }
       const token = res.data?.token;
 
       if (token) {
@@ -54,7 +52,6 @@ export default function Login() {
 
       setMsg({ type: "success", text: res.data?.message || "Login successful" });
 
-      // For now, navigate anywhere (replace with your dashboard route later)
       setTimeout(() => navigate("/dashboard"), 250);
     } catch (error) {
       const text =

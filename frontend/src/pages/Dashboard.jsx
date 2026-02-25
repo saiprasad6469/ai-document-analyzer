@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { api, setAuthToken } from "../services/api";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+
 // ---------- user ----------
 function readUser() {
   try {

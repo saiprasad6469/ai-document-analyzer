@@ -40,6 +40,7 @@ export default function Register() {
     try {
       setLoading(true);
 
+      // ✅ baseURL comes from services/api.js
       const res = await api.post("/auth/register", {
         name: form.name.trim(),
         email: form.email.trim().toLowerCase(),
@@ -57,7 +58,10 @@ export default function Register() {
 
       navigate("/dashboard", { replace: true });
     } catch (error) {
-      const text = error?.response?.data?.message || error?.message || "Registration failed";
+      const text =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Registration failed";
       setMsg({ type: "error", text });
     } finally {
       setLoading(false);
