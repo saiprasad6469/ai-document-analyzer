@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api, setAuthToken } from "../services/api";
 
 // ---------- user ----------
@@ -42,6 +43,7 @@ function isMobileWidth() {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const fileRef = useRef(null);
   const token = localStorage.getItem("token");
 
@@ -94,10 +96,7 @@ export default function Dashboard() {
           setUser(dbUser);
           localStorage.setItem("user", JSON.stringify(dbUser));
         }
-      } catch (e) {
-        // If token invalid, force logout
-        // (optional: keep silent)
-      }
+      } catch (e) {}
     })();
   }, [token]);
 
@@ -222,7 +221,8 @@ export default function Dashboard() {
       await api.delete(`/chats/${id}`);
       setChats((prev) => {
         const next = prev.filter((c) => c.id !== id);
-        const nextActive = (activeChatId === id ? next[0]?.id : activeChatId) || null;
+        const nextActive =
+          (activeChatId === id ? next[0]?.id : activeChatId) || null;
         setActiveChatId(nextActive);
         return next;
       });
@@ -231,19 +231,19 @@ export default function Dashboard() {
     }
   };
 
+  // ✅ FIXED LOGOUT (redirects to /login)
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setAuthToken(null);
-    window.location.href = "/login";
+    navigate("/login", { replace: true });
   };
 
   const onPickFiles = () => fileRef.current?.click();
 
-  // ✅ Upload handler (works with FormData)
   const onFilesSelected = async (e) => {
     const files = Array.from(e.target.files || []);
-    e.target.value = ""; // allow selecting same file again
+    e.target.value = "";
     if (!files.length || !activeSessionId) return;
 
     try {
@@ -252,8 +252,6 @@ export default function Dashboard() {
       const formData = new FormData();
       for (const f of files) formData.append("files", f);
 
-      // Common upload route:
-      // POST /docs/upload with field name "files"
       await api.post("/docs/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -264,7 +262,6 @@ export default function Dashboard() {
       await refreshDocs(activeSessionId);
     } catch (err) {
       console.error("Upload failed:", err?.response?.data || err?.message || err);
-      // Optional: show an error message in chat
     } finally {
       setUploading(false);
     }
@@ -298,7 +295,8 @@ export default function Dashboard() {
       const chatRes = await api.get(`/chats/${activeChatId}`);
       setMessages(chatRes.data?.chat?.messages || []);
     } catch (err) {
-      const text = err?.response?.data?.message || err?.message || "Question failed";
+      const text =
+        err?.response?.data?.message || err?.message || "Question failed";
 
       try {
         await api.post(`/chats/${activeChatId}/messages`, {
@@ -328,7 +326,6 @@ export default function Dashboard() {
 
   return (
     <div className="appShell">
-      {/* ✅ hidden file input */}
       <input
         ref={fileRef}
         type="file"
@@ -378,7 +375,9 @@ export default function Dashboard() {
             <div style={avatarStyle}>{initials}</div>
             <div>
               <div style={{ fontWeight: 600 }}>{displayName}</div>
-              {displaySub && <div style={{ fontSize: 12, opacity: 0.8 }}>{displaySub}</div>}
+              {displaySub && (
+                <div style={{ fontSize: 12, opacity: 0.8 }}>{displaySub}</div>
+              )}
             </div>
           </div>
 
@@ -413,7 +412,10 @@ export default function Dashboard() {
 
         <div className="chatBox">
           {messages.map((m, i) => (
-            <div key={i} className={`msg ${m.role === "user" ? "msgUser" : "msgAi"}`}>
+            <div
+              key={i}
+              className={`msg ${m.role === "user" ? "msgUser" : "msgAi"}`}
+            >
               <div className="msgRole">{m.role === "user" ? "You" : "AI"}</div>
               <div className="msgText">{m.content}</div>
             </div>
