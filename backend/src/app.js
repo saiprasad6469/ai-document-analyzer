@@ -5,14 +5,14 @@ import docsRoutes from "./routes/docs.routes.js";
 
 const app = express();
 
-// Body parsing
+// Parsers
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ CORS: allow Render frontend + local dev
+// ✅ CORS allowlist
 const allowedOrigins = [
-  process.env.CLIENT_URL,       // set this on Render
-  process.env.CLIENT_ORIGIN,    // optional (old)
+  process.env.CLIENT_URL,
+  process.env.CLIENT_ORIGIN, // optional (old var)
   "http://localhost:5173",
   "http://localhost:5174",
   "https://ai-document-analyzer-1-yo3h.onrender.com"
@@ -20,9 +20,10 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin, cb) => {
-    // allow requests with no origin (Postman/curl)
+    // Allow requests with no origin (Postman/curl)
     if (!origin) return cb(null, true);
 
+    // Allow only known origins
     if (allowedOrigins.includes(origin)) return cb(null, true);
 
     return cb(new Error(`CORS blocked for origin: ${origin}`));
@@ -32,10 +33,17 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+// ✅ Apply CORS for all requests
 app.use(cors(corsOptions));
 
-// ✅ Preflight (IMPORTANT): Express/router doesn't like "*", so use "/*"
-app.options("/*", cors(corsOptions));
+// ✅ Handle ALL preflight requests safely (no wildcard route patterns)
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    // run cors for this request then return 204
+    return cors(corsOptions)(req, res, () => res.sendStatus(204));
+  }
+  next();
+});
 
 // Routes
 app.get("/", (req, res) => res.send("AI Document Analyzer API ✅"));
