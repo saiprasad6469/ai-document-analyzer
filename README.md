@@ -1,202 +1,170 @@
-<div align="center">
+# AI Document Analyzer
 
-# 🤖 AI Document Analyzer
-
-### *Upload. Analyze. Understand — Instantly with the Power of AI*
-
-[![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)](/)
-[![AI Powered](https://img.shields.io/badge/AI-Powered-blueviolet?style=for-the-badge&logo=openai)](/)
-[![Type](https://img.shields.io/badge/Type-Full--Stack%20Web%20App-blue?style=for-the-badge)](/)
-[![NLP](https://img.shields.io/badge/Tech-NLP%20%7C%20Document%20AI-orange?style=for-the-badge)](/)
+A full-stack web application that lets you upload a document and instantly get an AI-generated summary, key highlights, and answers to questions based on the document's content. Built to save the time people spend manually reading through long PDFs and reports.
 
 ---
 
-> **Stop reading. Start understanding.**  
-> The AI Document Analyzer lets you upload any document and instantly get summaries, key insights, and answers — all powered by Artificial Intelligence.
+## The Problem This Solves
 
-</div>
+Anyone who regularly deals with documents — students reviewing research papers, professionals reading contracts, researchers going through reports — knows how long it takes to extract what actually matters. Reading a 40-page PDF to find three relevant points is not a good use of anyone's time.
 
----
-
-## 📌 Overview
-
-The **AI Document Analyzer** is an intelligent web application that uses **Artificial Intelligence** to analyze, interpret, and extract meaningful insights from documents such as PDFs or text files.
-
-It helps users **quickly understand large volumes of content** by:
-- 📝 Summarizing documents in seconds
-- 🔍 Highlighting key points automatically
-- 💬 Answering user questions based on document context
+This application handles that by running the document through an AI model that understands the content and gives you back what you need: a clean summary, the key points pulled out automatically, and the ability to ask it questions directly. Instead of reading the whole thing, you interact with it.
 
 ---
 
-## 🎯 Why This Project Matters
+## How It Works
 
-In today's world, professionals, students, and researchers deal with enormous volumes of documents daily. Reading through all of them is slow, exhausting, and inefficient.
+1. The user uploads a PDF or plain text file through the interface.
+2. The backend receives the file and extracts the raw text from it using a document parsing library.
+3. The extracted text is passed to an AI model, which generates a summary and identifies the most important points.
+4. The user can then type questions about the document and the system returns answers grounded in the document's actual content.
+5. Everything is displayed in a clean interface — summary, key highlights, and the Q&A all in one place.
 
-| 😓 The Problem | 🚀 Our Solution |
-|---|---|
-| Hours spent reading long documents | Get summaries in seconds |
-| Missing important information | AI extracts key points automatically |
-| No easy way to query documents | Ask questions, get context-based answers |
-| Manual analysis prone to errors | AI-driven, accurate interpretation |
-| Low productivity from document overload | Smarter, faster document interaction |
+The whole process from upload to summary takes a few seconds depending on document length.
 
 ---
 
-## ⚙️ How It Works
+## What You Can Do With It
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                        AI WORKFLOW                                   │
-│                                                                      │
-│   📄 Upload          ⚙️ Process           🧠 AI Analysis            │
-│   ────────          ──────────           ─────────────              │
-│   PDF / TXT    →    Extract Text    →    Summarize                  │
-│   Document          Parse Content        Key Points                  │
-│                                          Q&A Engine                  │
-│                          │                    │                      │
-│                          ▼                    ▼                      │
-│                   📡 Interactive UI  ←  🎯 AI Response               │
-│                   User gets insights, answers & summaries            │
-└──────────────────────────────────────────────────────────────────────┘
-```
-
-### Step-by-Step Flow:
-
-1. 📤 **User uploads a document** — PDF or plain text file  
-2. ⚙️ **Backend processes the document** — extracts and parses raw content  
-3. 🧠 **AI analyzes the text** — generates summaries and identifies key points  
-4. 💬 **User asks questions** — interacts with the document naturally  
-5. 🎯 **System responds** — delivers accurate, context-aware AI answers  
+- Upload a PDF or text document and get a summary without reading the whole thing
+- View the key points the AI pulled out automatically from the content
+- Ask natural language questions like "What are the main conclusions?" or "What does the document say about pricing?" and get direct answers
+- Use it on research papers, legal documents, reports, study material, or any text-heavy file
 
 ---
 
-## 👤 User Interaction
+## Features
 
-Everything is designed around one user — **you**:
+**Document Upload and Parsing**
+The app accepts PDF and plain text files. Once uploaded, the backend extracts the raw text using a parsing library before sending it for analysis. Basic file validation is handled to avoid broken uploads.
 
-```
-  ┌────────────────────────────────────────────┐
-  │             USER CAPABILITIES              │
-  │                                            │
-  │  📤  Upload PDF or text documents          │
-  │  📋  View AI-generated summaries           │
-  │  🔑  Extract key insights & highlights     │
-  │  ❓  Ask questions about the document      │
-  │  🤖  Receive smart, context-based answers  │
-  └────────────────────────────────────────────┘
-```
+**AI Summarization**
+The extracted text is sent to an NLP model that condenses the document into a short, readable summary. This is not keyword extraction — it uses language understanding to generate a coherent overview of what the document actually says.
 
----
+**Key Point Extraction**
+Along with the summary, the model identifies and pulls out the most significant points from the document. These are presented as a clean list so the user can quickly scan what matters most.
 
-## 📊 Key Functional Components
+**Question and Answer Module**
+Users can type any question about the document and the system will search the content for the relevant context and return an answer. The answers are based on what the document actually contains, not general knowledge, which keeps responses accurate and grounded.
 
-```
-📄 Document Upload & Parsing
-    └── Accepts PDF & text files, extracts raw content for analysis
+**Interactive Interface**
+The frontend is designed to be simple. There are no complex menus — upload a file, see your results, ask questions. The summary, key points, and Q&A panel are all accessible from the same screen.
 
-🧠 AI Text Analysis & Summarization
-    └── Condenses lengthy documents into clear, concise summaries
-
-❓ Question-Answering Module
-    └── Context-aware Q&A — asks questions, gets answers from the document
-
-🔍 Keyword & Key Point Extraction
-    └── Automatically identifies and highlights the most important information
-
-📡 Interactive User Interface
-    └── Clean, intuitive UI for seamless document interaction
-
-🔐 Secure Data Handling
-    └── User-uploaded documents processed safely and privately
-```
+**Secure Document Handling**
+Uploaded files are processed server-side and not stored permanently. Documents are handled in temporary storage during the session and cleared afterward, keeping user content private.
 
 ---
 
-## 💡 Project Highlights
+## Tech Stack
 
-- 🤖 **AI at the Core** — Real NLP-driven analysis, not just keyword search  
-- 📚 **Practical Real-World Use** — Useful for students, researchers, lawyers, businesses  
-- ⚡ **Massive Time Savings** — Understand documents in a fraction of the time  
-- 🧩 **NLP Concepts in Action** — Demonstrates summarization, extraction & Q&A  
-- 📈 **Scalable** — Adaptable for education, research, legal, and enterprise use  
+**Frontend**
+- React.js for the UI
+- Axios for communicating with the backend API
+- Clean, minimal design focused on usability
+
+**Backend**
+- Python with Flask or FastAPI for the server and API endpoints
+- Handles file uploads, parsing, and routing requests to the AI layer
+
+**AI and NLP**
+- OpenAI API (GPT models) or HuggingFace Transformers for summarization and Q&A
+- LangChain for managing document context and chaining AI calls where needed
+
+**Document Parsing**
+- PyMuPDF or PDFPlumber for extracting text from PDF files
+- Plain text files handled directly without additional parsing
+
+**Database**
+- MongoDB or PostgreSQL for storing session data and request logs if needed
+
+**Deployment**
+- Can be deployed on Render, Vercel (frontend), or AWS depending on your setup
 
 ---
 
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|---|---|
-| 🎨 Frontend | React.js / HTML, CSS, JavaScript |
-| ⚙️ Backend | Python (Flask / FastAPI) / Node.js |
-| 🧠 AI / NLP | OpenAI API / HuggingFace Transformers / LangChain |
-| 📄 Document Parsing | PyMuPDF / PDFPlumber / pdfminer |
-| 🗄️ Database | MongoDB / PostgreSQL |
-| ☁️ Deployment | Render / Vercel / AWS |
-
-> *(Update this table to reflect your actual tech stack)*
-
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-```bash
-Python 3.8+  or  Node.js 16+
-pip / npm
-Git
-API Key (OpenAI or HuggingFace — if applicable)
-```
+- Python 3.8 or above
+- pip for installing Python dependencies
+- Git
+- An API key from OpenAI or HuggingFace (depending on which model you use)
 
 ### Installation
 
+Clone the repository:
+
 ```bash
-# 1. Clone the repository
 git clone https://github.com/your-username/ai-document-analyzer.git
-
-# 2. Navigate to the project directory
 cd ai-document-analyzer
+```
 
-# 3. Install dependencies
+Install the required Python dependencies:
+
+```bash
 pip install -r requirements.txt
-# or for Node.js:
-npm install
+```
 
-# 4. Set up environment variables
+Set up your environment variables:
+
+```bash
 cp .env.example .env
-# Add your API keys and config in .env
+```
 
-# 5. Run the application
+Open the `.env` file and add your configuration:
+
+```
+OPENAI_API_KEY=your_openai_api_key
+HUGGINGFACE_API_KEY=your_huggingface_key (if applicable)
+FLASK_SECRET_KEY=your_secret_key
+PORT=5000
+```
+
+Run the application:
+
+```bash
 python app.py
-# or
+```
+
+The app will be available at `http://localhost:5000`.
+
+If you are using the React frontend separately, open a new terminal and run:
+
+```bash
+cd frontend
+npm install
 npm start
 ```
 
+The frontend will run at `http://localhost:3000` and communicate with the backend at port 5000.
+
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ai-document-analyzer/
 │
-├── 📂 frontend/               # UI Layer
-│   ├── components/
-│   ├── pages/
-│   └── assets/
+├── frontend/                  # React UI
+│   ├── src/
+│   │   ├── pages/             # Upload page, Results page, Q&A view
+│   │   ├── components/        # Reusable UI components
+│   │   └── services/          # Axios API call functions
+│   └── public/
 │
-├── 📂 backend/                # Server & AI Logic
-│   ├── app.py / server.js
-│   ├── routes/
-│   ├── controllers/
+├── backend/                   # Python Flask/FastAPI server
+│   ├── app.py                 # Main application entry point
+│   ├── routes/                # API route definitions
+│   ├── controllers/           # Request handling logic
 │   └── ai_engine/
-│       ├── summarizer.py
-│       ├── extractor.py
-│       └── qa_model.py
+│       ├── summarizer.py      # Summarization logic
+│       ├── extractor.py       # Key point extraction
+│       └── qa_model.py        # Question answering module
 │
-├── 📂 uploads/                # Temp document storage
-├── 📂 models/                 # AI model configs
-├── 📂 config/                 # Environment & settings
+├── uploads/                   # Temporary file storage during processing
+├── models/                    # AI model configurations
+├── config/                    # App settings and environment config
 ├── .env.example
 ├── requirements.txt
 └── README.md
@@ -204,60 +172,51 @@ ai-document-analyzer/
 
 ---
 
-## 📸 Screenshots
+## API Overview
 
-> 🖼️ *(Add your screenshots here — Upload Screen, Summary View, Q&A Interface, etc.)*
-
----
-
-## 🔮 Future Enhancements
-
-- [ ] 🌐 Multi-language document support  
-- [ ] 📊 Visual charts from document data  
-- [ ] 🧾 Support for Word (.docx) and Excel files  
-- [ ] 🔗 URL-based document fetching  
-- [ ] 🗂️ Document history and saved sessions  
-- [ ] 👥 Multi-user collaboration features  
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/upload` | Upload a document for processing |
+| GET | `/api/summary` | Retrieve the AI-generated summary |
+| GET | `/api/keypoints` | Get the extracted key points |
+| POST | `/api/ask` | Send a question and receive a document-based answer |
+| DELETE | `/api/clear` | Clear the current document from the session |
 
 ---
 
-## 🤝 Contributing
+## Screenshots
 
-Have ideas to improve the analyzer? Contributions are welcome!
-
-```bash
-# 1. Fork the repository
-# 2. Create your feature branch
-git checkout -b feature/your-feature-name
-
-# 3. Commit your changes
-git commit -m "Add: your feature description"
-
-# 4. Push to your branch
-git push origin feature/your-feature-name
-
-# 5. Open a Pull Request 🎉
-```
+> *(Add screenshots here — Upload Screen, Summary View, Key Points Panel, Q&A Interface)*
 
 ---
 
-## 📄 License
+## Planned Improvements
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+These are features that would make sense to add as the project grows:
 
----
-
-<div align="center">
-
-### 🧠 Built to make documents smarter — and your life easier.
-
-*The AI Document Analyzer proves that Artificial Intelligence isn't just a buzzword —*  
-*it's a practical tool that saves time, reduces effort, and unlocks insights.*
+- Support for Word (.docx) and Excel files in addition to PDF and text
+- Multi-language document support for non-English content
+- Visual charts or graphs generated from numerical data found in documents
+- URL-based document input so users can paste a link instead of uploading a file
+- Saved session history so users can return to previously analyzed documents
+- Multi-user support with login and personal document libraries
 
 ---
 
-⭐ **Found this useful? Give it a star and share it!** ⭐
+## Contributing
 
-**Made with ❤️ and the power of AI**
+If you want to add a feature or fix something:
 
-</div>
+1. Fork the repository
+2. Create a branch for your change: `git checkout -b feature/your-feature-name`
+3. Commit with a descriptive message: `git commit -m "Add: description of what you changed"`
+4. Push your branch: `git push origin feature/your-feature-name`
+5. Open a pull request explaining what you changed and why
+
+Issues and suggestions are welcome through the GitHub Issues tab.
+
+---
+
+## License
+
+This project is licensed under the MIT License. You are free to use, modify, and build on it for personal or commercial purposes. See the `LICENSE` file for the full terms.
